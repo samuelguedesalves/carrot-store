@@ -2,23 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios').default;
 
-// const Firebase = require('firebase/app');
-// require('firebase/auth');
-// require('firebase/firestore');
-
-// var fireBaseConfig = {
-//     apiKey: "AIzaSyD7dAgM8SRJjSLPBfPs2gzKZ-rzZK-NFJc",
-//     authDomain: "carrot-9b7e4.firebaseapp.com",
-//     databaseURL: "https://carrot-9b7e4.firebaseio.com",
-//     projectId: "carrot-9b7e4",
-//     storageBucket: "carrot-9b7e4.appspot.com",
-//     messagingSenderId: "258673528765",
-//     appId: "1:258673528765:web:d050cb19f94c3717f58cd4"
-//     //measurementId: "G-J20H7759Z7"
-// };
-
-// Firebase.initializeApp(fireBaseConfig);
-
 const api = express();
 
 api.use(cors());
@@ -32,28 +15,32 @@ api.listen( apiPort , ()=>{
 
 
 
-//-----------------ROTAS-------------------
-//rota de login
+//-----------------ROUTERS-------------------
+
+//login router
 api.post('/login', (req, res)=>{
     const email = req.body.user_email;
     const password = req.body.user_password;
 
     if(email != "" && password != ""){
-        
-        /*
-        const query = 'call '+'autenticar_usuario("'+email+'","'+password+'");';
-        connection.query(query, (err, result)=>{
-            if (err) res.sendStatus(500);
-            if(result[0][0].log == 'false'){
-                res.send({log: false});
-            }else{
-                // const name = result[0][0].name;
-                const name = 'samuel';
-                res.send({log: true, name_user: name});
-            }
-        });
-        */
-        res.send({ log: true });
+        axios.get('https://carrot-9b7e4.firebaseio.com/Carrot/Users.json')
+            .then((response_database) => {
+                for(var i in response_database.data){
+                    if(response_database.data[i].email === email){
+                        if(response_database.data[i].password === password){
+                            res.send({log: true, username: response_database.data[i].name, userId: i });
+                        }else{
+                            res.send({ log: false });
+                        }
+                    }
+                }
+
+                res.send({ log: false });
+
+            })
+            .catch((error_database) =>{
+                res.send({ log: false });
+            });
     }else{
         res.send({ log: false });
     }
