@@ -67,46 +67,31 @@ api.post('/new_user', (req, res)=>{
 
     if (name && email && password){
         
-        async function verificEmail(email_test){
-            var query = await axios.get('https://carrot-9b7e4.firebaseio.com/Carrot/Users.json')
-                .then((response) => {
-                    for(var i in response.data){
-                        if(response.data[i].email == email_test){
-                            console.log(response.data[i].email);
-                            return false;
-                        };  
-                    }
-                })
-                .catch((err)=>{
-                    console.log(err);
-                    return false;
-                });
-            if(query){
-                return false;
-            }else{
-                return true;
-            }
-        }
+        axios.get('https://carrot-9b7e4.firebaseio.com/Carrot/Users.json')
+            .then((response) => {
+                for(var i in response.data){
+                    console.log(response.data[i].email);
+                    if(response.data[i].email == email){
+                        res.send({ insert: false });
+                    };  
+                }
 
-        if(verificEmail(email) == true){
-            axios.post('https://carrot-9b7e4.firebaseio.com/Carrot/Users.json', {
-                    name: name,
-                    email: email,
-                    password: password,
-                })
-                .then((data) => {
-                    res.send({ insert: true });
-                })
-                .catch((err) => {
-                    res.send({ insert: false });
-                });
-        }else{
-            console.log('aqui');
-            res.send({ insert: false });
-        }
+                axios.post('https://carrot-9b7e4.firebaseio.com/Carrot/Users.json', {
+                        name: name,
+                        email: email,
+                        password: password,
+                    })
+                    .then((data) => {
+                        res.send({ insert: true });
+                    })
+                    .catch((err) => {
+                        res.send({ insert: false });
+                    });
 
-    }else{
-        res.send({ insert: false });
+            })
+            .catch((err)=>{
+                res.send({ insert: false });
+            });
     }
 });
 
